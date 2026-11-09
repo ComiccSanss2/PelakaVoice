@@ -1,0 +1,14 @@
+# dependencies and build output
+node_modules/
+dist/
+
+# large binaries (cloudflared is downloaded automatically, installers go to GitHub Releases)
+server/cloudflared.exe
+server/bin/
+server/updates/*
+!server/updates/.gitkeep
+
+# local backup and test leftovers
+_backup-1.0.0/
+_shots/
+*.log

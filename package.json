@@ -1,0 +1,72 @@
+{
+  "name": "pelakavoice",
+  "version": "2.3.1",
+  "description": "PelakaVoice - voice chat, screen sharing and private calls for Windows",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "server": "node server/server.js",
+    "server:online": "node server/online-server.js",
+    "build": "electron-builder --win nsis --x64 --publish never",
+    "release": "node scripts/publish-update.js"
+  },
+  "author": "PelakaVoice Team",
+  "license": "MIT",
+  "pelaka": {
+    "updateUrl": ""
+  },
+  "dependencies": {
+    "electron-updater": "^6.3.9",
+    "socket.io": "^4.8.4"
+  },
+  "devDependencies": {
+    "electron": "^45.2.3",
+    "electron-builder": "^26.18.0"
+  },
+  "build": {
+    "appId": "com.pelakavoice.app",
+    "productName": "PelakaVoice",
+    "copyright": "Copyright © 2026 PelakaVoice",
+    "artifactName": "PelakaVoice-Setup-${version}.${ext}",
+    "compression": "maximum",
+    "electronLanguages": [
+      "en-US",
+      "it",
+      "fr"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "publish": [
+      {
+        "provider": "generic",
+        "url": "http://127.0.0.1:3000/updates"
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "assets/icon.png"
+    },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": false,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "PelakaVoice",
+      "differentialPackage": true
+    },
+    "files": [
+      "src/**/*",
+      "server/server.js",
+      "server/tunnel.js",
+      "assets/icon.png",
+      "package.json",
+      "!**/*.{md,map,ts,markdown}",
+      "!**/{test,tests,docs,example,examples}/**"
+    ]
+  }
+}

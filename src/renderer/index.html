@@ -1,0 +1,806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' blob: mediastream:; connect-src http: https: ws: wss:">
+  <title>PelakaVoice</title>
+  <script src="theme.js"></script>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="nova.css">
+  <link rel="stylesheet" href="layout.css">
+</head>
+<body>
+
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <symbol id="i-wave" viewBox="0 0 24 24"><path d="M4 10v4M8 7v10M12 4v16M16 7v10M20 10v4"/></symbol>
+      <symbol id="i-mic" viewBox="0 0 24 24"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3Z"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
+      <symbol id="i-mic-off" viewBox="0 0 24 24"><path d="M9 9v3a3 3 0 0 0 5 2.2M15 10V6a3 3 0 0 0-5.7-1.3"/><path d="M5 11a7 7 0 0 0 11.5 5.4M19 11a7 7 0 0 1-.6 2.8M12 18v3M4 4l16 16"/></symbol>
+      <symbol id="i-head" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0 1 16 0v2"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><rect x="17" y="14" width="4" height="6" rx="1.5"/></symbol>
+      <symbol id="i-head-off" viewBox="0 0 24 24"><path d="M4 14v-2a8 8 0 0 1 2-5.3M9 4.6A8 8 0 0 1 20 12v2"/><rect x="3" y="14" width="4" height="6" rx="1.5"/><path d="M17 17v1.5a1.5 1.5 0 0 0 3 0M4 4l16 16"/></symbol>
+      <symbol id="i-screen" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></symbol>
+      <symbol id="i-leave" viewBox="0 0 24 24"><path d="M3 14c5-5 13-5 18 0l-2 3-4-1.5V13a9 9 0 0 0-6 0v2.5L5 17l-2-3Z"/></symbol>
+      <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+      <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-7l-5 4v-4a2 2 0 0 1-2-2V6Z"/></symbol>
+      <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6 3h3l2 5-2.5 1.5a11 11 0 0 0 5 5L15 12l5 2v3a2 2 0 0 1-2 2A15 15 0 0 1 4 5a2 2 0 0 1 2-2Z"/></symbol>
+      <symbol id="i-up" viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></symbol>
+      <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3A4 4 0 0 0 11 18.7l1-1"/></symbol>
+      <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6"/></symbol>
+      <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+      <symbol id="i-send" viewBox="0 0 24 24"><path d="M4 12 20 4l-6 16-3-7-7-1Z"/></symbol>
+      <symbol id="i-volume" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9H4Z"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/></symbol>
+      <symbol id="i-stop" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></symbol>
+      <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 5v14l12-7L7 5Z"/></symbol>
+    </defs>
+  </svg>
+  <div id="toast-stack" class="toast-stack" aria-live="polite"></div>
+  <div class="bg-fx" aria-hidden="true"><i class="b1"></i><i class="b2"></i><i class="b3"></i><b class="grain"></b></div>
+  <div id="fun-layer" class="fun-layer" aria-hidden="true"></div>
+  <div id="roll-overlay" class="roll-overlay hidden" aria-live="polite"></div>
+
+  <!-- ================= LOGIN SCREEN ================= -->
+  <div id="login-screen" class="view-screen active">
+    <div class="drag-strip"></div>
+    <div class="sparks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="login-modal-card">
+      <div class="brand-header">
+        <div class="brand-avatar-logo"><span class="orbit"></span><span class="orbit o2"></span><span class="eq"><i></i><i></i><i></i><i></i><i></i></span></div>
+        <h1>PelakaVoice</h1>
+        <p class="typewriter" id="login-tagline">Crystal-clear voice. Effortless sharing.</p>
+      </div>
+
+      <div class="login-inputs">
+        <div class="field-group">
+          <label for="input-nickname">Nickname</label>
+          <input type="text" id="input-nickname" placeholder="e.g. Alex" maxlength="20" autofocus autocomplete="off">
+        </div>
+
+        <div class="field-group">
+          <label>Avatar color</label>
+          <div class="swatches-row" id="color-picker">
+            <button type="button" class="swatch active" data-color="#0a84ff" style="background:#0a84ff"></button>
+            <button type="button" class="swatch" data-color="#30d158" style="background:#30d158"></button>
+            <button type="button" class="swatch" data-color="#bf5af2" style="background:#bf5af2"></button>
+            <button type="button" class="swatch" data-color="#ff375f" style="background:#ff375f"></button>
+            <button type="button" class="swatch" data-color="#ff9f0a" style="background:#ff9f0a"></button>
+            <button type="button" class="swatch" data-color="#64d2ff" style="background:#64d2ff"></button>
+          </div>
+        </div>
+
+        <div class="field-group">
+          <label for="input-server-url">Invite code or server address</label>
+          <input type="text" id="input-server-url" placeholder="four-random-words  ·  or an address" autocomplete="off" spellcheck="false">
+          <button type="button" id="clip-invite" class="clip-chip hidden"></button>
+          <div class="recent-servers" id="recent-servers"></div>
+        </div>
+
+        <div id="login-error" class="alert-box hidden"></div>
+
+        <button type="button" id="btn-login-submit" class="btn-primary-large">
+          Join PelakaVoice
+        </button>
+
+        <div class="host-panel" id="host-panel">
+          <div class="host-title">No server yet? Host one for your friends</div>
+          <div class="host-actions">
+            <button type="button" id="btn-host-online" class="btn-ghost">Create online server</button>
+            <button type="button" id="btn-host-lan" class="btn-ghost">LAN only</button>
+          </div>
+          <div id="host-status" class="host-status hidden">
+            <span class="status-dot"></span>
+            <span id="host-status-text"></span>
+          </div>
+          <div id="host-invite" class="invite-box hidden">
+            <strong id="host-invite-code"></strong>
+            <button type="button" id="btn-copy-invite" class="btn-primary-sm">Copy</button>
+          </div>
+          <button type="button" id="btn-host-stop" class="link-btn hidden">Stop server</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MAIN APP SCREEN ================= -->
+  <div id="app-screen" class="view-screen">
+
+    <!-- MINIMAL TOP BAR -->
+    <header class="top-nav-bar">
+      <div class="nav-brand">
+        <span class="nav-brand-icon"><svg class="ic"><use href="#i-wave"/></svg></span>
+        <span class="nav-brand-name">PelakaVoice</span>
+      </div>
+
+      <!-- Clean Segmented Navigation Tabs -->
+      <nav class="nav-segments">
+        <button type="button" class="segment-btn active" data-tab="tab-lobbies">
+          Lobbies
+        </button>
+        <button type="button" class="segment-btn" data-tab="tab-friends">
+          Friends & DMs
+          <span class="count-badge tab-badge hidden" id="badge-incoming-msg"></span>
+        </button>
+        <button type="button" class="segment-btn" data-tab="tab-settings">
+          Settings
+        </button>
+      </nav>
+
+      <div class="nav-right">
+        <button type="button" id="update-pill" class="update-pill hidden" title="Install the update and restart">
+          <svg class="ic"><use href="#i-up"/></svg><span id="update-pill-text">Updating…</span>
+        </button>
+        <button type="button" id="nav-host-pill" class="nav-chip host-pill hidden" title="You are hosting — click to copy the invite code"><span class="status-dot pulse"></span><span id="nav-host-text">Hosting</span></button>
+        <button type="button" id="btn-nav-invite" class="nav-chip hidden" title="Copy your invite code">
+          <svg class="ic"><use href="#i-link"/></svg><span>Invite</span>
+        </button>
+        <div class="connection-badge" id="connection-badge" data-state="ok">
+          <span class="status-dot"></span>
+          <span id="node-ping-text">Connected</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- MAIN STAGE -->
+    <main class="app-stage">
+
+      <!-- ================= TAB 1: LOBBIES ================= -->
+      <section id="tab-lobbies" class="stage-tab active">
+        <div class="lobbies-shell">
+        <aside class="lobby-rail">
+          <div class="rail-head">
+            <span class="rail-title">Lobbies</span>
+            <button type="button" id="btn-open-create-lobby" class="rail-add" title="Create a lobby">+</button>
+          </div>
+          <input type="text" id="input-lobby-search" class="search-input rail-search" placeholder="Search lobbies…" autocomplete="off">
+          <div class="lobbies-grid" id="lobbies-grid"></div>
+          <button type="button" class="rail-server hidden" id="rail-server" title="Click to copy your invite code">
+            <span class="rs-head"><span class="status-dot pulse"></span><span id="rs-title">Your server is online</span></span>
+            <span class="rs-code" id="rs-code"></span>
+          </button>
+        </aside>
+        <div class="lobbies-main">
+        <!-- Home -->
+        <div id="lobbies-browser-view" class="lobbies-subview active">
+          <div class="hero">
+            <div class="hero-badge"><span class="rec-dot"></span> PelakaVoice <span id="hero-version"></span></div>
+            <h2 class="hero-title"><span id="hero-greeting">Hello</span>, <span id="hero-name" class="grad-text">friend</span></h2>
+            <p class="hero-sub" id="hero-sub">Pick a lobby on the left or start your own.</p>
+            <div class="hero-stats">
+              <div class="stat"><b id="stat-lobbies">0</b><span>lobbies</span></div>
+              <div class="stat"><b id="stat-online">0</b><span>in voice</span></div>
+              <div class="stat"><b id="stat-live">0</b><span>live now</span></div>
+            </div>
+            <div class="hero-actions">
+              <button type="button" class="hero-card" id="hero-create"><span class="hc-emoji">✨</span><strong>Create a lobby</strong><small>Your own room, public or private</small></button>
+              <button type="button" class="hero-card" id="hero-join"><span class="hc-emoji">🔥</span><strong>Jump in</strong><small id="hero-join-sub">Join the busiest lobby</small></button>
+              <button type="button" class="hero-card" id="hero-invite"><span class="hc-emoji">💌</span><strong>Invite friends</strong><small id="hero-invite-sub">Copy this server's invite</small></button>
+            </div>
+            <div class="ticker"><span class="ticker-label">LIVE FEED</span><div class="ticker-track"><div class="ticker-items" id="ticker-items"></div></div></div>
+          </div>
+        </div>
+
+        <!-- Inside Active Lobby View -->
+        <div id="active-lobby-stage" class="lobbies-subview">
+          <div class="call-top-bar">
+            <div class="call-title-cluster">
+              <span class="call-icon" id="active-lobby-icon"><svg class="ic"><use href="#i-wave"/></svg></span>
+              <div>
+                <h2 id="active-lobby-title">General Voice</h2>
+                <span class="call-subtitle" id="active-lobby-meta">2 participants</span>
+              </div>
+            </div>
+            <div class="call-top-actions">
+              <button type="button" id="btn-toggle-chat" class="btn-ghost chat-toggle" title="Show / hide the chat">💬 Chat <span id="chat-unread" class="count-badge hidden"></span></button>
+              <button type="button" id="btn-delete-lobby" class="btn-ghost-danger hidden">Delete lobby</button>
+              <button type="button" id="btn-back-to-lobbies" class="btn-ghost">
+                Browse Lobbies
+              </button>
+              <button type="button" id="btn-leave-lobby" class="btn-danger">
+                Leave Call
+              </button>
+            </div>
+          </div>
+
+          <div class="fun-bar">
+            <div class="reaction-row"><button type="button" class="react-btn" data-emoji="😂" title="Send 😂">😂</button><button type="button" class="react-btn" data-emoji="🔥" title="Send 🔥">🔥</button><button type="button" class="react-btn" data-emoji="👏" title="Send 👏">👏</button><button type="button" class="react-btn" data-emoji="❤️" title="Send ❤️">❤️</button><button type="button" class="react-btn" data-emoji="😮" title="Send 😮">😮</button><button type="button" class="react-btn" data-emoji="🎉" title="Send 🎉">🎉</button><button type="button" class="react-btn" data-emoji="💀" title="Send 💀">💀</button><button type="button" class="react-btn" data-emoji="👀" title="Send 👀">👀</button><button type="button" class="react-btn" data-emoji="😭" title="Send 😭">😭</button><button type="button" class="react-btn" data-emoji="🤯" title="Send 🤯">🤯</button></div>
+            <div class="fun-tools">
+              <button type="button" class="fun-btn" data-roll="dice" title="Everyone sees the same roll">🎲 Dice</button>
+              <button type="button" class="fun-btn" data-roll="coin">💰 Coin</button>
+              <button type="button" class="fun-btn" data-roll="wheel" title="Pick a random person in the lobby">🎡 Wheel</button>
+              <button type="button" class="fun-btn" id="btn-open-poll">📊 Poll</button>
+              <select id="select-fx-quick" class="fx-select" title="Voice effect"><option value="normal">Normal voice</option><option value="robot">🤖 Robot</option><option value="chipmunk">🐿️ Chipmunk</option><option value="deep">🐻 Deep</option><option value="radio">📻 Radio</option><option value="cave">🏔️ Cave</option></select>
+            </div>
+          </div>
+          <div class="lobby-body">
+          <div class="lobby-main">
+          <!-- Screen Share Cinema Player (Visible when sharing or viewing screen) -->
+          <div id="screen-share-container" class="screen-share-stage hidden">
+            <div class="screen-video-wrapper">
+              <video id="screen-share-video" autoplay playsinline></video>
+              <div class="screen-overlay-controls">
+                <div class="screen-tags"><span class="screen-presenter-tag" id="screen-presenter-name">Presenting</span><span class="screen-presenter-tag hidden" id="screen-stats"></span></div>
+                <button type="button" id="btn-toggle-fullscreen" class="btn-icon-glass" title="Toggle Fullscreen">
+                  Fullscreen
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="stream-grid" id="stream-grid"></div>
+          <!-- Participants Tiles -->
+          <div class="participants-section">
+            <div class="section-sub-header">
+              <span>In voice · right-click someone to change their volume</span>
+            </div>
+            <div class="participants-grid" id="participants-grid">
+              <!-- Rendered participant cards -->
+            </div>
+          </div>
+
+          <!-- Shared soundboard -->
+          <div class="soundboard-section">
+            <div class="sb-header">
+              <button type="button" class="sb-title" id="btn-sb-collapse" title="Show / hide (keys 1–9 play sounds)"><span class="chev">▾</span> Soundboard <span class="sb-count" id="sound-count"></span></button>
+              <div class="sb-controls">
+                <span class="ic-vol" title="Soundboard volume"><svg class="ic"><use href="#i-volume"/></svg></span>
+                <input type="range" id="slider-sb-volume" min="0" max="100" value="60">
+                <span class="slider-val" id="sb-volume-label">60%</span>
+                <button type="button" id="btn-sb-stop" class="btn-sm-ghost" title="Stop all sounds"><svg class="ic"><use href="#i-stop"/></svg></button>
+                <button type="button" id="btn-add-sound" class="btn-primary-sm"><svg class="ic"><use href="#i-plus"/></svg> Add sound</button>
+              </div>
+            </div>
+            <div class="sound-grid" id="sound-grid"></div>
+          </div>
+          </div>
+
+          <!-- Lobby chat -->
+          <aside class="lobby-chat">
+            <div class="lobby-chat-header">Lobby chat</div>
+            <div class="lobby-chat-list" id="lobby-chat-list"></div>
+            <div class="typing-line" id="lobby-typing"></div>
+            <div class="lobby-chat-input">
+              <input type="text" id="input-lobby-chat" placeholder="Message the lobby…" maxlength="500" autocomplete="off">
+              <button type="button" id="btn-send-lobby-chat" class="btn-send" title="Send"><svg class="ic"><use href="#i-send"/></svg></button>
+            </div>
+          </aside>
+          </div>
+        </div>
+        </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 2: FRIENDS & PRIVATE CALLS ================= -->
+      <section id="tab-friends" class="stage-tab">
+        <div class="friends-layout">
+          <!-- Left Sidebar: Friends Roster -->
+          <aside class="friends-sidebar">
+            <div class="friends-sidebar-top">
+              <div class="user-id-pill">
+                <span>My Tag:</span>
+                <strong id="my-tag-text">Alex#1234</strong>
+              </div>
+              <div class="add-friend-bar">
+                <input type="text" id="input-add-friend-tag" placeholder="Add friend by tag (Alex#1234)">
+                <button type="button" id="btn-submit-add-friend" class="btn-primary-sm">Add</button>
+              </div>
+              <div id="add-friend-error" class="alert-box-sm hidden"></div>
+            </div>
+
+            <div class="friends-list-container" id="friends-list">
+              <!-- Dynamically populated friends -->
+            </div>
+          </aside>
+
+          <!-- Right Area: Private Call & Chat -->
+          <main class="friends-main-deck">
+            <div id="direct-empty-state" class="direct-empty-view">
+              <div class="empty-icon"><svg class="ic"><use href="#i-chat"/></svg></div>
+              <h3>Private calls & messages</h3>
+              <p>Select a friend from your list on the left to start a private voice call, share your screen, or send messages.</p>
+            </div>
+
+            <div id="direct-active-state" class="direct-chat-view hidden">
+              <!-- Header -->
+              <div class="direct-chat-header">
+                <div class="direct-header-user">
+                  <div class="avatar-circle" id="direct-target-avatar">A</div>
+                  <div>
+                    <h3 id="direct-target-name">Friend</h3>
+                    <span class="user-status-text" id="direct-target-status">Online</span>
+                  </div>
+                </div>
+                <div class="direct-header-actions">
+                  <button type="button" id="btn-nudge" class="btn-ghost" title="Nudge: shakes their window">📳 Nudge</button>
+                  <button type="button" id="btn-start-direct-call" class="btn-primary">
+                    Call
+                  </button>
+                  <button type="button" id="btn-end-direct-call" class="btn-danger hidden">
+                    End Call
+                  </button>
+                </div>
+              </div>
+
+              <div class="stream-grid compact" id="direct-stream-grid"></div>
+              <!-- Private Call Screen Share Player (If active) -->
+              <div id="direct-screen-container" class="screen-share-stage hidden">
+                <div class="screen-video-wrapper">
+                  <video id="direct-screen-video" autoplay playsinline></video>
+                </div>
+              </div>
+
+              <!-- In-call active banner -->
+              <div id="direct-call-active-banner" class="active-call-pill hidden">
+                <span class="status-dot green pulse"></span>
+                <span>Private Voice Call in progress</span>
+                <div class="reaction-row compact" data-target="call"><button type="button" class="react-btn" data-emoji="😂" title="Send 😂">😂</button><button type="button" class="react-btn" data-emoji="🔥" title="Send 🔥">🔥</button><button type="button" class="react-btn" data-emoji="👏" title="Send 👏">👏</button><button type="button" class="react-btn" data-emoji="❤️" title="Send ❤️">❤️</button><button type="button" class="react-btn" data-emoji="😮" title="Send 😮">😮</button><button type="button" class="react-btn" data-emoji="🎉" title="Send 🎉">🎉</button><button type="button" class="react-btn" data-emoji="💀" title="Send 💀">💀</button><button type="button" class="react-btn" data-emoji="👀" title="Send 👀">👀</button><button type="button" class="react-btn" data-emoji="😭" title="Send 😭">😭</button><button type="button" class="react-btn" data-emoji="🤯" title="Send 🤯">🤯</button></div>
+              </div>
+
+              <!-- Messages List -->
+              <div class="direct-messages-box" id="direct-chat-messages">
+                <!-- Chat bubbles -->
+              </div>
+
+              <!-- Message Input -->
+              <div class="typing-line" id="dm-typing"></div>
+              <div class="direct-input-bar">
+                <input type="text" id="input-direct-chat" placeholder="Type a message..." maxlength="400">
+                <button type="button" id="btn-send-direct-chat" class="btn-primary-sm">Send</button>
+              </div>
+            </div>
+          </main>
+        </div>
+      </section>
+
+      <!-- ================= TAB 3: AUDIO & SETTINGS ================= -->
+      <section id="tab-settings" class="stage-tab">
+        <div class="settings-page-card">
+          <h2>Settings</h2>
+          <p class="subtitle">Appearance, microphone and updates</p>
+
+          <div class="settings-block">
+            <h3>Appearance</h3>
+            <p class="desc">Pick the look you like. It is saved on this computer.</p>
+            <div class="theme-grid" id="theme-grid">
+              <button type="button" class="theme-card" data-theme="nova">
+                <span class="theme-preview"><i></i><i></i><b></b></span>
+                <strong>Nova</strong><small>Living neon glow</small>
+              </button>
+              <button type="button" class="theme-card" data-theme="cupertino">
+                <span class="theme-preview"><i></i><i></i><b></b></span>
+                <strong>Cupertino</strong><small>Light, airy, glass</small>
+              </button>
+              <button type="button" class="theme-card" data-theme="midnight">
+                <span class="theme-preview"><i></i><i></i><b></b></span>
+                <strong>Midnight</strong><small>True black, cinematic</small>
+              </button>
+              <button type="button" class="theme-card" data-theme="aurora">
+                <span class="theme-preview"><i></i><i></i><b></b></span>
+                <strong>Aurora</strong><small>Violet glow</small>
+              </button>
+            </div>
+          </div>
+
+          <div class="settings-block" id="settings-server">
+            <h3>Your server</h3>
+            <p class="desc">Host a PelakaVoice server from this PC — no .bat window needed. While you host (or while you're in a call) closing the window keeps PelakaVoice running in the system tray.</p>
+            <div class="server-status"><span class="status-dot" id="srv-dot"></span><span id="srv-status-text">Not hosting</span></div>
+            <div class="invite-box hidden" id="srv-invite"><strong id="srv-invite-code"></strong><button type="button" id="btn-srv-copy" class="btn-primary-sm">Copy</button></div>
+            <div class="host-actions">
+              <button type="button" id="btn-srv-online" class="btn-primary">Host online</button>
+              <button type="button" id="btn-srv-lan" class="btn-ghost">LAN only</button>
+              <button type="button" id="btn-srv-join" class="btn-ghost hidden">Join my server</button>
+              <button type="button" id="btn-srv-stop" class="btn-ghost-danger hidden">Stop server</button>
+            </div>
+            <div class="setting-item">
+              <label for="select-autohost">When PelakaVoice starts</label>
+              <select id="select-autohost">
+                <option value="">Don't host automatically</option>
+                <option value="online">Host online automatically</option>
+                <option value="lan">Host on my LAN automatically</option>
+              </select>
+            </div>
+            <div class="setting-item checkbox-item">
+              <label class="custom-checkbox"><input type="checkbox" id="check-tray"><span class="checkmark"></span><span>Keep running in the tray when I close the window (while hosting or in a call)</span></label>
+            </div>
+          </div>
+
+          <div class="settings-block">
+            <h3>Streams</h3>
+            <div class="setting-item checkbox-item">
+              <label class="custom-checkbox"><input type="checkbox" id="check-autowatch"><span class="checkmark"></span><span>Automatically watch streams when someone goes live (turn off to save bandwidth and click "Watch" yourself)</span></label>
+            </div>
+          </div>
+
+          <div class="settings-block">
+            <h3>Headset anti-bleed noise gate</h3>
+            <p class="desc">
+              Stops game and friend audio from leaking out of your headphones into the microphone. Silence is clamped to absolute zero when you aren't talking.
+            </p>
+
+            <div class="meter-box">
+              <div class="meter-text">
+                <span>Microphone Input Level</span>
+                <span id="gate-status-label" class="gate-state">Silent</span>
+              </div>
+              <div class="meter-bar-track">
+                <div class="meter-bar-fill" id="lab-db-fill"></div>
+                <div class="meter-threshold-marker" id="lab-gate-marker" style="left: 35%;"></div>
+              </div>
+              <div class="meter-footer">
+                <span>Quiet</span>
+                <span class="marker-note">Red line = cut-off (meter is live while you are in a call)</span>
+                <span>Loud</span>
+              </div>
+            </div>
+
+            <div class="setting-item">
+              <label>Noise Gate Threshold</label>
+              <div class="slider-wrapper">
+                <input type="range" id="slider-gate-threshold" min="5" max="80" value="35">
+                <span class="slider-val" id="badge-gate-threshold">35%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-block">
+            <h3>Input Device & Modes</h3>
+            <div class="setting-item">
+              <label for="select-mic-device">Microphone</label>
+              <select id="select-mic-device">
+                <option value="">Default System Microphone</option>
+              </select>
+            </div>
+
+            <div class="setting-item checkbox-item">
+              <label class="custom-checkbox">
+                <input type="checkbox" id="check-push-to-talk">
+                <span class="checkmark"></span>
+                <span>Push-to-talk (hold <kbd id="ptt-key-label">Space</kbd> to speak)</span>
+              </label>
+            </div>
+            <div class="setting-inline">
+              <span>Push-to-talk key</span>
+              <button type="button" id="btn-ptt-key" class="btn-ghost key-btn">Space</button>
+            </div>
+            <div class="setting-item">
+              <label for="select-out-device">Speakers / headphones</label>
+              <select id="select-out-device"><option value="">Default system output</option></select>
+            </div>
+            <div class="setting-item checkbox-item">
+              <label class="custom-checkbox"><input type="checkbox" id="check-ns"><span class="checkmark"></span><span>Noise suppression (keyboard, fans, background noise)</span></label>
+            </div>
+            <div class="setting-item checkbox-item">
+              <label class="custom-checkbox"><input type="checkbox" id="check-ec"><span class="checkmark"></span><span>Echo cancellation (turn off only if you always use headphones)</span></label>
+            </div>
+            <div class="setting-inline">
+              <span>Hear yourself to check your mic and voice effect (use headphones)</span>
+              <button type="button" id="btn-mic-test" class="btn-ghost">Test microphone</button>
+            </div>
+          </div>
+
+          <div class="settings-block">
+            <h3>Voice effects</h3>
+            <p class="desc">Change how your voice sounds to everyone in the call. Also available from the bar inside every lobby.</p>
+            <div class="chip-row" id="fx-chips">
+              <button type="button" class="chip" data-fx="normal">Normal voice</button>
+              <button type="button" class="chip" data-fx="robot">🤖 Robot</button>
+              <button type="button" class="chip" data-fx="chipmunk">🐿️ Chipmunk</button>
+              <button type="button" class="chip" data-fx="deep">🐻 Deep</button>
+              <button type="button" class="chip" data-fx="radio">📻 Radio</button>
+              <button type="button" class="chip" data-fx="cave">🏔️ Cave</button>
+            </div>
+          </div>
+
+          <div class="settings-block">
+            <h3>Notifications & shortcuts</h3>
+            <div class="setting-item checkbox-item">
+              <label class="custom-checkbox"><input type="checkbox" id="check-notifications"><span class="checkmark"></span><span>Desktop notifications for messages, mentions and calls while PelakaVoice is in the background</span></label>
+            </div>
+            <div class="setting-item checkbox-item" id="autostart-row">
+              <label class="custom-checkbox"><input type="checkbox" id="check-autostart"><span class="checkmark"></span><span>Start PelakaVoice with Windows</span></label>
+            </div>
+            <div class="shortcut-list">
+              <kbd>Ctrl + Shift + M</kbd><span>Mute / unmute — works even inside games</span>
+              <kbd>Ctrl + Shift + D</kbd><span>Deafen / undeafen — works even inside games</span>
+              <kbd>M</kbd><span>Mute (app focused)</span>
+              <kbd>D</kbd><span>Deafen (app focused)</span>
+              <kbd>Esc</kbd><span>Close windows and menus</span>
+              <kbd>1 … 9</kbd><span>Play soundboard sounds (inside a lobby)</span>
+              <kbd>F</kbd><span>Fullscreen the first stream you're watching</span>
+              <kbd>@name</kbd><span>Mention someone in the lobby chat</span>
+            </div>
+          </div>
+
+          <div class="settings-block">
+            <h3>About & updates</h3>
+            <p class="desc">Updates download in the background and install when you restart — no installer to run.</p>
+            <div class="about-row">
+              <span id="app-version-text">PelakaVoice</span>
+              <button type="button" id="btn-check-update" class="btn-ghost">Check for updates</button>
+            </div>
+          </div>
+
+          <div class="settings-block danger-zone">
+            <h3>Session</h3>
+            <button type="button" id="btn-lab-logout" class="btn-ghost-danger">
+              Log out / change nickname or server
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- MINIMAL FLOATING CONTROL DOCK (BOTTOM) -->
+    <footer class="minimal-dock">
+      <div class="dock-identity">
+        <div class="dock-avatar-dot" id="dock-avatar">
+          <span id="dock-avatar-letter">A</span>
+        </div>
+        <div class="dock-user-names">
+          <span class="dock-user-title" id="dock-username">Alex</span>
+          <span class="dock-channel-title" id="dock-channel-name">Not in call</span>
+        </div>
+        <span class="dock-viz" id="dock-viz" title="Your voice"><i></i><i></i><i></i><i></i><i></i></span>
+        <span class="lcd hidden" id="call-timer" title="Time in this call">00:00</span>
+      </div>
+
+      <div class="dock-actions">
+        <!-- Mic Toggle -->
+        <button type="button" id="dock-btn-mute" class="dock-action-btn" title="Toggle Mute (M)">
+          <span class="btn-icon"><svg class="ic ic-on"><use href="#i-mic"/></svg><svg class="ic ic-off"><use href="#i-mic-off"/></svg></span>
+          <span id="dock-mute-label">Mute</span>
+        </button>
+
+        <!-- Deafen Toggle -->
+        <button type="button" id="dock-btn-deafen" class="dock-action-btn" title="Toggle Deafen">
+          <span class="btn-icon"><svg class="ic ic-on"><use href="#i-head"/></svg><svg class="ic ic-off"><use href="#i-head-off"/></svg></span>
+          <span id="dock-deafen-label">Deafen</span>
+        </button>
+
+        <!-- Screen Share Toggle -->
+        <button type="button" id="dock-btn-screen" class="dock-action-btn" title="Stream your screen or a window">
+          <span class="btn-icon"><svg class="ic"><use href="#i-screen"/></svg></span>
+          <span id="dock-screen-label">Go live</span>
+        </button>
+
+        <!-- Leave Call Button -->
+        <button type="button" id="dock-btn-disengage" class="dock-action-btn btn-danger-dock hidden" title="Leave Call">
+          <span class="btn-icon"><svg class="ic"><use href="#i-leave"/></svg></span>
+          <span>Leave</span>
+        </button>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- ================= RIGHT-CLICK USER VOLUME CONTEXT MENU ================= -->
+  <div id="participant-context-menu" class="context-menu-popover hidden">
+    <div class="context-menu-header">
+      <div class="context-avatar" id="context-user-avatar">U</div>
+      <span class="context-name" id="context-user-name">User</span>
+    </div>
+    <div class="context-menu-body">
+      <div class="context-slider-header">
+        <label>User Volume</label>
+        <span id="context-volume-label">100%</span>
+      </div>
+      <input type="range" id="context-volume-slider" min="0" max="200" value="100">
+      <div class="context-quick-actions">
+        <button type="button" id="btn-context-mute-peer" class="btn-sm-ghost">Mute User</button>
+        <button type="button" id="btn-context-reset-peer" class="btn-sm-ghost">Reset (100%)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= SCREEN SHARING SOURCE PICKER MODAL ================= -->
+  <div class="modal-backdrop hidden" id="modal-screen-picker">
+    <div class="modal-card modal-large">
+      <div class="modal-card-header">
+        <h3>Go live</h3>
+        <button class="modal-close-icon" data-close="modal-screen-picker">&times;</button>
+      </div>
+      <div class="modal-card-body">
+        <div class="quality-picker">
+          <button type="button" class="q-btn" data-q="1080p60">1080p · 60 fps<small>Games & video</small></button>
+          <button type="button" class="q-btn" data-q="1080p30">1080p · 30 fps<small>Text & code</small></button>
+          <button type="button" class="q-btn" data-q="720p60">720p · 60 fps<small>Slower internet</small></button>
+        </div>
+        <label class="custom-checkbox share-audio">
+          <input type="checkbox" id="check-share-audio" checked><span class="checkmark"></span>
+          <span>Share sound too — games, videos, music. Your friends' voices are never included.</span>
+        </label>
+        <div class="screen-sources-grid" id="screen-sources-grid">
+          <!-- Dynamically populated thumbnails -->
+        </div>
+      </div>
+      <div class="modal-card-footer">
+        <button type="button" class="btn-ghost" data-close="modal-screen-picker">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= INCOMING DIRECT CALL MODAL ================= -->
+  <div class="modal-backdrop hidden" id="modal-incoming-call">
+    <div class="modal-card modal-compact text-center">
+      <div class="call-ringing-icon"><svg class="ic"><use href="#i-phone"/></svg></div>
+      <h3>Incoming Voice Call</h3>
+      <div class="caller-highlight" id="incoming-caller-name">Alex#1234</div>
+      <p class="modal-sub">Wants to start a direct 1-on-1 call with you</p>
+
+      <div class="modal-dual-actions">
+        <button type="button" id="btn-incoming-decline" class="btn-danger flex-1">Decline</button>
+        <button type="button" id="btn-incoming-accept" class="btn-primary flex-1">Accept Call</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= CREATE LOBBY MODAL ================= -->
+  <div class="modal-backdrop hidden" id="modal-create-pod">
+    <div class="modal-card">
+      <div class="modal-card-header">
+        <h3>Create New Lobby</h3>
+        <button class="modal-close-icon" data-close="modal-create-pod">&times;</button>
+      </div>
+      <div class="modal-card-body">
+        <div class="form-group">
+          <label for="create-pod-name">Lobby Name</label>
+          <input type="text" id="create-pod-name" placeholder="e.g. Squad Tactics" maxlength="32" autocomplete="off">
+        </div>
+
+        <div class="form-group">
+          <label for="create-pod-capacity">Max Participants</label>
+          <select id="create-pod-capacity">
+            <option value="4">4 people</option>
+            <option value="8" selected>8 people</option>
+            <option value="16">16 people</option>
+            <option value="32">32 people</option>
+          </select>
+        </div>
+
+        <div class="form-group checkbox-group">
+          <label class="custom-checkbox">
+            <input type="checkbox" id="create-pod-private">
+            <span class="checkmark"></span>
+            <span>Private lobby (requires a password)</span>
+          </label>
+        </div>
+
+        <div class="form-group hidden" id="pod-passcode-group">
+          <label for="create-pod-passcode">Password</label>
+          <input type="password" id="create-pod-passcode" placeholder="Enter lobby password">
+        </div>
+
+        <div id="create-pod-error" class="alert-box-sm hidden"></div>
+      </div>
+      <div class="modal-card-footer">
+        <button type="button" class="btn-ghost" data-close="modal-create-pod">Cancel</button>
+        <button type="button" id="btn-submit-create-pod" class="btn-primary">Create & Join</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ADD SOUND MODAL ================= -->
+  <div class="modal-backdrop hidden" id="modal-add-sound">
+    <div class="modal-card">
+      <div class="modal-card-header">
+        <h3>Add a sound</h3>
+        <button class="modal-close-icon" data-close="modal-add-sound">&times;</button>
+      </div>
+      <div class="modal-card-body">
+        <label class="sound-drop" id="sound-drop">
+          <input type="file" id="input-sound-file" accept=".mp3,audio/mpeg" hidden>
+          <svg class="ic"><use href="#i-up"/></svg>
+          <span id="sound-file-label">Choose an .mp3 or drop it here</span>
+        </label>
+        <div class="form-group">
+          <label for="input-sound-name">Name</label>
+          <input type="text" id="input-sound-name" maxlength="24" placeholder="e.g. Airhorn" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label>Length</label>
+          <div class="len-toggle">
+            <button type="button" class="len-btn active" data-len="5">5 seconds</button>
+            <button type="button" class="len-btn" data-len="10">10 seconds</button>
+          </div>
+        </div>
+        <div id="sound-trim-box" class="form-group hidden">
+          <label for="slider-sound-start">Start from</label>
+          <div class="slider-wrapper">
+            <input type="range" id="slider-sound-start" min="0" max="0" value="0" step="1">
+            <button type="button" id="btn-preview-sound" class="btn-ghost"><svg class="ic"><use href="#i-play"/></svg> Preview</button>
+          </div>
+          <div class="trim-label" id="sound-start-label"></div>
+        </div>
+        <div id="add-sound-error" class="alert-box-sm hidden"></div>
+      </div>
+      <div class="modal-card-footer">
+        <button type="button" class="btn-ghost" data-close="modal-add-sound">Cancel</button>
+        <button type="button" id="btn-submit-sound" class="btn-primary" disabled>Upload</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= UPDATE READY / WHAT'S NEW ================= -->
+  <div class="modal-backdrop hidden" id="modal-update-ready">
+    <div class="modal-card modal-compact text-center">
+      <div class="update-orb">⬆</div>
+      <h3>Update ready</h3>
+      <div class="caller-highlight" id="update-ready-version"></div>
+      <p class="modal-sub" id="update-ready-notes"></p>
+      <div class="modal-dual-actions">
+        <button type="button" class="btn-ghost flex-1" data-close="modal-update-ready">Later</button>
+        <button type="button" id="btn-update-restart" class="btn-primary flex-1">Restart now</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop hidden" id="modal-whats-new">
+    <div class="modal-card text-center">
+      <div class="update-orb party">🎉</div>
+      <h3 id="whats-new-title">PelakaVoice was updated</h3>
+      <p class="modal-sub" id="whats-new-notes"></p>
+      <ul class="whats-new-list" id="whats-new-list"></ul>
+      <div class="modal-dual-actions">
+        <button type="button" class="btn-primary flex-1" data-close="modal-whats-new">Let's go!</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= POLL MODAL ================= -->
+  <div class="modal-backdrop hidden" id="modal-poll">
+    <div class="modal-card">
+      <div class="modal-card-header">
+        <h3>Create a poll</h3>
+        <button class="modal-close-icon" data-close="modal-poll">&times;</button>
+      </div>
+      <div class="modal-card-body">
+        <div class="form-group">
+          <label for="input-poll-question">Question</label>
+          <input type="text" id="input-poll-question" maxlength="120" placeholder="e.g. What do we play next?" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label>Options</label>
+          <div class="poll-options-list" id="poll-options"></div>
+          <button type="button" id="btn-poll-add" class="link-btn">+ Add option</button>
+        </div>
+        <div id="poll-error" class="alert-box-sm hidden"></div>
+      </div>
+      <div class="modal-card-footer">
+        <button type="button" class="btn-ghost" data-close="modal-poll">Cancel</button>
+        <button type="button" id="btn-poll-create" class="btn-primary">Start poll</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ENTER PASSCODE MODAL ================= -->
+  <div class="modal-backdrop hidden" id="modal-enter-passcode">
+    <div class="modal-card modal-compact">
+      <div class="modal-card-header">
+        <h3>Private lobby</h3>
+        <button class="modal-close-icon" data-close="modal-enter-passcode">&times;</button>
+      </div>
+      <div class="modal-card-body">
+        <p class="modal-sub" id="passcode-modal-desc">This lobby is private. Enter the password to join:</p>
+        <input type="password" id="input-enter-passcode" placeholder="Password" autofocus>
+        <div id="enter-passcode-error" class="alert-box-sm hidden"></div>
+      </div>
+      <div class="modal-card-footer">
+        <button type="button" class="btn-ghost" data-close="modal-enter-passcode">Cancel</button>
+        <button type="button" id="btn-submit-enter-passcode" class="btn-primary">Enter Lobby</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPTS -->
+  <script src="libs/socket.io.min.js"></script>
+  <script src="audio.js"></script>
+  <script src="webrtc.js"></script>
+  <script src="soundboard.js"></script>
+  <script src="app.js"></script>
+  <script src="qol.js"></script>
+  <script src="fun.js"></script>
+  <script src="host.js"></script>
+  <script src="stage.js"></script>
+</body>
+</html>

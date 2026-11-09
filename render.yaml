@@ -1,0 +1,11 @@
+# Optional: run the PelakaVoice server 24/7 in the cloud for free on Render (https://render.com),
+# with a fixed address and without keeping your PC on. See README.md, section "Server sempre online".
+services:
+  - type: web
+    name: pelakavoice-server
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm install --omit=dev
+    startCommand: node server.js
+    healthCheckPath: /status
