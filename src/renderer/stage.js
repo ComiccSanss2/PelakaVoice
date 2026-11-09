@@ -434,11 +434,10 @@
 
   // ======================= "What's new" popup after an update =======================
   const WHATS_NEW = [
-    '📺 Watch several streams at once — and go live together',
-    '🔊 Stream sound (games, videos) without your friends\' voices, with its own volume',
-    '🖥️ Host your server from Settings → Your server: no .bat window, keeps running in the tray',
-    '🧭 New layout: lobby list on the left, home screen with live feed, collapsible chat',
-    '📳 MSN-style nudges, ⏱️ call timer, 1–9 soundboard keys, recent servers on login'
+    '📻 JukeBox in every lobby: paste a YouTube link and everyone hears it at the same time',
+    '📜 Shared queue: anyone can add tracks, they play one after the other',
+    '🗳️ Pause, skip and the shared volume need a majority of the people in voice',
+    '🎧 Your own JukeBox volume slider (only for you), and deafen mutes it too'
   ];
   async function whatsNew() {
     if (!api.getAppVersion) return;

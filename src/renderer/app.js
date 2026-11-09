@@ -671,6 +671,7 @@
 
     state.webrtc = new window.WebRTCManager(socket, state.audioEngine);
     if (window.pvFun) window.pvFun.attach(socket);
+    if (window.pvJukebox) window.pvJukebox.attach(socket);
 
     state.webrtc.onRemoteScreenAdded = (peerId, stream) => { if (window.pvStage) window.pvStage.remoteVideo(peerId, stream); };
     state.webrtc.onRemoteScreenRemoved = (peerId) => { if (window.pvStage) window.pvStage.remoteVideoGone(peerId); };
@@ -1057,6 +1058,7 @@
     state.lobbyChat = res.chat || [];
     renderLobbyChat();
     setSounds(res.sounds || []);
+    if (window.pvJukebox) window.pvJukebox.onEnter(res.jukebox || null);
 
     el.lobbiesBrowserView.classList.remove('active');
     el.activeLobbyStage.classList.add('active');
@@ -1083,6 +1085,7 @@
     renderLobbyChat();
     state.soundboard.stopAll();
     setSounds([]);
+    if (window.pvJukebox) window.pvJukebox.onExit();
     syncDeleteBtn();
 
     el.dockChannelName.textContent = 'Not in call';

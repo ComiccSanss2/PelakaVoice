@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' blob: mediastream:; connect-src http: https: ws: wss:">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://i.ytimg.com; media-src 'self' blob: mediastream: http: https:; connect-src http: https: ws: wss:">
   <title>PelakaVoice</title>
   <script src="theme.js"></script>
   <link rel="stylesheet" href="style.css">
@@ -234,6 +234,21 @@
             </div>
             <div class="participants-grid" id="participants-grid">
               <!-- Rendered participant cards -->
+            </div>
+          </div>
+
+          <!-- JukeBox: shared YouTube audio queue -->
+          <div class="jukebox-section" id="jukebox-section">
+            <div class="sb-header">
+              <button type="button" class="sb-title" id="btn-jb-collapse" title="Show / hide"><span class="chev">▾</span> 📻 JukeBox <span class="sb-count" id="jb-count"></span></button>
+              <div class="jb-add">
+                <input type="text" id="input-jb-url" placeholder="Paste a YouTube link…" maxlength="300" autocomplete="off" spellcheck="false">
+                <button type="button" id="btn-jb-add" class="btn-primary-sm"><svg class="ic"><use href="#i-plus"/></svg> Add</button>
+              </div>
+            </div>
+            <div class="jb-body">
+              <div id="jb-now"></div>
+              <div class="jb-queue" id="jb-queue"></div>
             </div>
           </div>
 
@@ -797,6 +812,7 @@
   <script src="audio.js"></script>
   <script src="webrtc.js"></script>
   <script src="soundboard.js"></script>
+  <script src="jukebox.js"></script>
   <script src="app.js"></script>
   <script src="qol.js"></script>
   <script src="fun.js"></script>

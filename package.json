@@ -1,6 +1,6 @@
 {
   "name": "pelakavoice",
-  "version": "2.3.1",
+  "version": "2.4.0",
   "description": "PelakaVoice - voice chat, screen sharing and private calls for Windows",
   "main": "src/main.js",
   "scripts": {
@@ -62,6 +62,7 @@
     "files": [
       "src/**/*",
       "server/server.js",
+      "server/jukebox.js",
       "server/tunnel.js",
       "assets/icon.png",
       "package.json",

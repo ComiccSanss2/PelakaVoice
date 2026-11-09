@@ -5,8 +5,9 @@ const os = require('os');
 const fs = require('fs');
 const path = require('path');
 const { Server } = require('socket.io');
+const { createJukebox } = require('./jukebox');
 
-const SERVER_VERSION = '2.3.0';
+const SERVER_VERSION = '2.4.0';
 const REACTIONS = ['😂', '🔥', '👏', '❤️', '😮', '🎉', '💀', '👀', '😭', '🤯'];
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': '*', 'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS' };
 const LIMITS = {
@@ -116,6 +117,7 @@ function createSignalingServer(port = 3000, opts = {}) {
     }
 
     if (u.pathname.startsWith('/updates/')) return serveUpdateFile(req, res, u.pathname.slice(9));
+    if (u.pathname.startsWith('/jukebox/')) return jukebox.serve(req, res, u.pathname.slice(9), CORS);
     json(res, 404, { error: 'Not found' });
   });
 
@@ -128,6 +130,7 @@ function createSignalingServer(port = 3000, opts = {}) {
     pingTimeout: 25000,
     maxHttpBufferSize: LIMITS.soundBytes + 64 * 1024
   });
+  const jukebox = createJukebox({ io, binDir: opts.binDir, cacheDir: opts.cacheDir, systemMessage: (l, t) => systemMessage(l, t) });
 
   const pub = (u) => ({
     id: u.id, username: u.username, tag: u.tag, avatarColor: u.avatarColor, status: u.status,
@@ -208,6 +211,7 @@ function createSignalingServer(port = 3000, opts = {}) {
     if (!lobby) return;
     lobby.users.delete(user.id);
     if (lobby.users.size === 0) lobby.emptySince = Date.now();
+    jukebox.onMembersChanged(lobby);
     io.to(id).emit('lobby_user_left', { userId: user.id });
     if (lobby.users.size) systemMessage(lobby, `${user.username} left`);
     broadcastLobbies();
@@ -223,6 +227,7 @@ function createSignalingServer(port = 3000, opts = {}) {
       if (s) s.leave(lobby.id);
       notifyFriends(u);
     }
+    jukebox.resetLobby(lobby);
     lobbies.delete(lobby.id);
     broadcastLobbies();
   }
@@ -247,6 +252,7 @@ function createSignalingServer(port = 3000, opts = {}) {
     const myLobby = () => (me && me.currentLobbyId ? lobbies.get(me.currentLobbyId) : null);
 
     socket.on('pv_ping', (cb) => ack(cb, Date.now()));
+    jukebox.attach(socket, { me: () => me, myLobby, allow, ack });
 
     socket.on('register_user', (data, cb) => {
       try {
@@ -354,8 +360,10 @@ function createSignalingServer(port = 3000, opts = {}) {
           lobby: lobbyInfo(lobby),
           peers: Array.from(lobby.users.values()).filter(u => u.id !== socket.id).map(pub),
           chat: lobby.messages,
-          sounds: soundList(lobby)
+          sounds: soundList(lobby),
+          jukebox: jukebox.snapshot(lobby)
         });
+        if (isNew) jukebox.onMembersChanged(lobby);
       } catch (err) {
         ack(cb, { success: false, error: err.message });
       }
@@ -673,6 +681,7 @@ function createSignalingServer(port = 3000, opts = {}) {
     stop: () => new Promise((resolve) => {
       clearTimeout(lobbiesTimer);
       clearInterval(sweeper);
+      jukebox.stop(lobbies);
       try { io.close(() => resolve()); } catch (e) { resolve(); }
     })
   };

@@ -233,7 +233,7 @@ function boot() {
         let lastErr = null;
         const updatesDir = path.join(app.getPath('userData'), 'updates'); // the in-app server also distributes updates
         for (let port = 3000; port < 3010 && !host.server; port++) {
-          const s = createSignalingServer(port, { updatesDir });
+          const s = createSignalingServer(port, { updatesDir, binDir: path.join(app.getPath('userData'), 'bin') });
           try {
             await s.start();
             host.server = s;
